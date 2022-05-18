@@ -1,0 +1,45 @@
+{
+  "name": "stream_static",
+  "version": "1.0.0",
+  "description": "A decomposable, stream-based version of the classic 'serve-static' module.",
+  "main": "dist/index.js",
+  "files": [
+    "dist/*.js",
+    "src/*.ts"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sbquinlan/stream-static.git"
+  },
+  "author": "Sean Quinlan <1011062+sbquinlan@users.noreply.github.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.13.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublish": "yarn build",
+    "test": "yarn build && mocha --reporter spec --bail --check-leaks test/"
+  },
+  "dependencies": {
+    "etag": "^1.8.1",
+    "mime": "^3.0.0",
+    "range-parser": "^1.2.1",
+    "statuses": "^2.0.1",
+    "vary": "^1.1.2"
+  },
+  "devDependencies": {
+    "@tsconfig/node16": "^1.0.2",
+    "@types/etag": "^1.8.1",
+    "@types/mime": "^2.0.3",
+    "@types/node": "^17.0.34",
+    "@types/range-parser": "^1.2.4",
+    "@types/statuses": "^2.0.0",
+    "@types/vary": "^1.1.0",
+    "after": "^0.8.2",
+    "bytes": "^3.1.2",
+    "mocha": "^10.0.0",
+    "supertest": "^6.2.3",
+    "typescript": "^4.6.4"
+  }
+}
