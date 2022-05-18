@@ -1,5 +1,5 @@
 {
-  "name": "stream_static",
+  "name": "stream-static",
   "version": "1.0.0",
   "description": "A decomposable, stream-based version of the classic 'serve-static' module.",
   "main": "dist/index.js",
