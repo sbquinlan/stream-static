@@ -3,15 +3,15 @@
  * https://github.com/expressjs/compression/blob/3fea81d0eaed1eb872bf3e0405f20d9e175ab2cf/test/compression.js
  */
 
-var after = require('after')
-var assert = require('assert')
-var Buffer = require('safe-buffer').Buffer
-var bytes = require('bytes')
-var crypto = require('crypto')
-var http = require('http')
+const after = require('after')
+const assert = require('assert')
+const Buffer = require('safe-buffer').Buffer
+const bytes = require('bytes')
+const crypto = require('crypto')
+const http = require('http')
 const { pipeline, PassThrough } = require('stream')
-var request = require('supertest')
-var zlib = require('zlib')
+const request = require('supertest')
+const zlib = require('zlib')
 
 const compression = require('../dist/compression').default
 

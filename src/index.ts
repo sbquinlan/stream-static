@@ -5,7 +5,7 @@ import { normalize_path, send } from './send'
 import basicheaders from './basicheaders'
 import byterange from './byterange'
 import conditionals from './conditionals'
-import compression from './compression.js'
+import compression from './compression'
 
 async function streamStatic(
   root: string, 

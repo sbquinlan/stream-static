@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "A decomposable, stream-based version of the classic 'serve-static' module.",
   "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "src/index.ts",
   "files": [
     "dist/*.js",
     "src/*.ts"
