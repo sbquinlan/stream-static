@@ -570,6 +570,7 @@ function createServer({ threshold }, fn) {
       res,
       (err) => {
         if (err) {
+          console.log(err);
           res.statusCode = err.status || 500
           res.end(err.message)
         }

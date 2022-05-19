@@ -19,6 +19,7 @@
     "node": ">=16.13.2"
   },
   "scripts": {
+    "clean": "rm dist/*",
     "build": "tsc",
     "prepublish": "yarn build",
     "test": "yarn build && mocha --reporter spec --bail --check-leaks test/"

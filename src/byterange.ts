@@ -1,7 +1,7 @@
-import { PassThrough, Readable, Transform } from 'stream'
 import { IncomingMessage, ServerResponse } from 'http'
 
 import parseRange, * as RangeParser from 'range-parser'
+import { Duplex, PassThrough } from 'stream'
 import error from './error'
 import { as_nullable_string } from './utils'
 
@@ -24,17 +24,17 @@ function if_range(header: string | undefined, etag: string | undefined, mtime: a
   return isNaN(mtime) || header_date >= mtime
 }
 
+export type TransformGenerator = (source: AsyncIterator<Buffer, any, void>) => AsyncIterator<Buffer>;
 function slicer(
   ranges: RangeParser.Range[], 
   seperator?: string, 
   content_type?: string
-): Transform {
-  async function* transform(source: Readable, signal: { abort: AbortSignal }) {
+): Duplex {
+  async function* transform(source: AsyncIterator<Buffer>): AsyncIterator<Buffer> {
     let pos = 0;
-    // @ts-ignore Typescript doesn't understand the type interop between *gens and Transform
     let { value: buffer, done } = await source.next();
-    if (signal.abort) return
-    if (done) throw new Error('Empty stream to slice')    
+    if (done) throw new Error('Empty stream to slice')
+
     for (const {start, end} of ranges) {
       if (ranges.length > 1) {
         // need to do multi part encoding
@@ -43,30 +43,25 @@ function slicer(
       // fast forward to the window start
       while ((pos + buffer.length) < start) {
         pos += buffer.length;
-        // @ts-ignore Typescript doesn't understand the type interop between *gens and Transform
         ({ value: buffer, done } = await source.next())
-        if (signal.abort) return;
         if (done) throw new Error('Ran out of data')
       }
 
       // return the window 
-      if (signal.abort) return;
       yield buffer.slice(
         Math.max(0, start - pos),
-        Math.min(buffer.length, end - pos),
+        Math.min(buffer.length, end + 1 - pos),
       );
 
       // keep going until we get the buffer with the end byte
-      while ((pos + buffer.length) < end) {
+      while ((pos + buffer.length) <= end) {
         pos += buffer.length
-        // @ts-ignore Typescript doesn't understand the type interop between *gens and Transform
         ({ value: buffer, done } = await source.next())
-        if (signal.abort) return;
         if (done) throw new Error('Ran out of data')
 
         yield buffer.slice(
           Math.max(0, start - pos), // should always be 0 in this case
-          Math.min(buffer.length, end - pos),
+          Math.min(buffer.length, end + 1 - pos),
         );
       }
     }
@@ -74,18 +69,21 @@ function slicer(
       yield closing_boundary(seperator!)
     }
   }
-  // @ts-ignore Typescript doesn't understand the type interop between *gens and Transform
-  return transform
+  return Duplex.from(transform)
 }
 
-function ranges_invalid(result: RangeParser.Result | RangeParser.Ranges): result is RangeParser.Result {
-  return typeof result == 'number';
+function ranges_invalid(result: RangeParser.Result | RangeParser.Ranges): result is RangeParser.ResultInvalid {
+  return result === -2;
+}
+
+function ranges_unsatifiable(result: RangeParser.Result | RangeParser.Ranges): result is RangeParser.ResultUnsatisfiable {
+  return result === -1;
 }
 
 export default function byterange(
   req: IncomingMessage, 
   res: ServerResponse
-): Transform {
+): Duplex {
   res.setHeader('Accept-Ranges', 'bytes');
 
   const etag = as_nullable_string(res.getHeader('Etag'));
@@ -98,21 +96,29 @@ export default function byterange(
 
   const ranges = parseRange(length, range_header, { combine: true });
   if (ranges_invalid(ranges)) {
+    return new PassThrough();
+  }
+
+  if (ranges_unsatifiable(ranges)) {
     res.setHeader('Content-Range', `bytes */${length}`)
     throw error(416)
   }
 
-  if (ranges.length === 1) {  
+  res.statusCode = 206;
+  if (ranges.length === 1) {
     res.setHeader('Content-Range', `bytes ${ranges[0].start}-${ranges[0].end}/${length}`)
-    res.setHeader('Content-Length', ranges[0].end - ranges[0].start)
+    res.setHeader('Content-Length', ranges[0].end - ranges[0].start + 1)
     return slicer(ranges)
   }
 
-  // multipart
-  const sep = '';
-  const type = as_nullable_string(res.getHeader('Content-Type'));
+  const sep = 'idontknowwhattomakethis';
+  const type = as_nullable_string(res.getHeader('Content-Type')) ?? 'application/octet-stream';
   res.setHeader('Content-Type', `multipart/byteranges; boundary=${sep}`)
-  // this is hard it's like the sum of all the ranges plus the separators
-  res.setHeader('Content-Length', '')
+  // duplicate boundary strings here, but whatever, makes it easier to calculate
+  const content_length = closing_boundary(sep).length + ranges.reduce(
+    (sum, r) => sum + r.end - r.start + boundary(sep, type, r).length,
+    0
+  );
+  res.setHeader('Content-Length', String(content_length))
   return slicer(ranges, sep, type)
 }
