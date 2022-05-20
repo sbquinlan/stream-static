@@ -8,11 +8,6 @@ import conditionals from './conditionals'
 import compression from './compression'
 import error from './error'
 
-// this just adds the experimental iterator method
-interface ReadableWithIterator extends Readable {
-  iterator(): AsyncIterableIterator<any>;
-}
-
 async function streamStatic(
   root: string, 
   req: IncomingMessage, 
@@ -35,8 +30,7 @@ async function streamStatic(
     stream.destroy();
     throw err;
   }
-  const ranger = byterange(req, res);
-  return stream.pipe(ranger, { end: true });
+  return stream.pipe(byterange(req, res));
 }
 
 export default {

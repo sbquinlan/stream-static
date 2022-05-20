@@ -63,14 +63,6 @@ describe('serveStatic()', function () {
         .expect(404, done)
     })
 
-    it('should support index.html', function (done) {
-      request(server)
-        .get('/users/')
-        .expect(200)
-        .expect('Content-Type', /html/)
-        .expect('<p>tobi, loki, jane</p>', done)
-    })
-
     it('should not support ../', function (done) {
       request(server)
         .get('/users/../todo.txt')

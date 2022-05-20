@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'http'
 
 import parseRange, * as RangeParser from 'range-parser'
-import { Duplex, PassThrough } from 'stream'
+import { Duplex, PassThrough, Transform } from 'stream'
 import error from './error'
 import { as_nullable_string } from './utils'
 
@@ -24,7 +24,6 @@ function if_range(header: string | undefined, etag: string | undefined, mtime: a
   return isNaN(mtime) || header_date >= mtime
 }
 
-export type TransformGenerator = (source: AsyncIterator<Buffer, any, void>) => AsyncIterator<Buffer>;
 function slicer(
   ranges: RangeParser.Range[], 
   seperator?: string, 
@@ -85,7 +84,7 @@ export default function byterange(
   res: ServerResponse
 ): Duplex {
   res.setHeader('Accept-Ranges', 'bytes');
-
+  
   const etag = as_nullable_string(res.getHeader('Etag'));
   const mtime = Date.parse(as_nullable_string(res.getHeader('Last-Modified')) ?? '');
   const length = Number(res.getHeader('Content-Length'));
