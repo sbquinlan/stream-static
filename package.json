@@ -1,7 +1,7 @@
 {
   "name": "stream-static",
   "version": "1.0.0",
-  "description": "A decomposable, stream-based version of the classic 'serve-static' module.",
+  "description": "A composable, stream-based version of the 'serve-static', 'compression', 'send' modules.",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "src/index.ts",
