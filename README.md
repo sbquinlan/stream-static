@@ -1,5 +1,9 @@
 # stream-static
 
+[![NPM Version][npm-version-image]][npm-url]
+[![NPM Downloads][npm-downloads-image]][npm-url]
+[![Tests][github-actions-ci-image]][github-actions-ci-url]
+
 This is a rewrite of the npm module [`serve-static`](https://www.npmjs.com/package/serve-static) and [`compression`](https://www.npmjs.com/package/compression) for Node v16+. This module offers a composable solution with components offer specific, minimal functionality and limited dependences by emphasizing the Stream APIs provided by Node.js from the filesystem, compression and HTTP.
 
 ## Why use this instead?
@@ -157,3 +161,9 @@ This is the replacement for [`compression`](https://www.npmjs.com/package/compre
 ## License
 
 [MIT](LICENSE)
+
+[github-actions-ci-image]: https://github.com/sbquinlan/stream-static/actions/workflows/npm-test.yml/badge.svg?event=push)
+[github-actions-ci-url]: https://github.com/sbquinlan/stream-static/actions/workflows/npm-test.yml
+[npm-downloads-image]: https://badgen.net/npm/dm/stream-static
+[npm-url]: https://npmjs.org/package/stream-static
+[npm-version-image]: https://badgen.net/npm/v/stream-static
