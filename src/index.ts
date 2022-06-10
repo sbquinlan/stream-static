@@ -33,7 +33,7 @@ async function streamStatic(
   return stream.pipe(byterange(req, res));
 }
 
-export default {
+export {
   streamStatic,
   normalize_path,
   send,

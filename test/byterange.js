@@ -2,7 +2,7 @@
 var http = require('http')
 var path = require('path')
 var request = require('supertest')
-var { streamStatic } = require('../dist').default
+var { streamStatic } = require('../dist')
 var fixtures = path.join(__dirname, '/fixtures')
 
 describe('byterange()', function () {
