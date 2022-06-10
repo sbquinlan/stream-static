@@ -1,6 +1,6 @@
 {
   "name": "stream-static",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A composable, stream-based version of the 'serve-static', 'compression', 'send' modules.",
   "main": "dist/index.js",
   "module": "dist/index.js",
